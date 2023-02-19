@@ -31,27 +31,27 @@ jobs:
     - name: Build
       run: go build -o ${{ env.APP_NAME }} cmd/backend/main.go
 
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN_VVIP }}
-        with:
-          tag_name: v1.0.0
-          release_name: Release v1.0.0
-          body: |
-            This is the release body.
-            It can contain multiple lines of text.
-          draft: false
-          prerelease: true
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN_VVIP }}
+      with:
+        tag_name: v1.0.0
+        release_name: Release v1.0.0
+        body: |
+          This is the release body.
+          It can contain multiple lines of text.
+        draft: false
+        prerelease: true
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ env.APP_NAME }} 
-          path: ${{ env.APP_NAME }} 
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.APP_NAME }} 
+        path: ${{ env.APP_NAME }} 
 
-      - name: Create Tag
-        run: |
-          git tag -a v1.0.0 -m "Release v1.0.0"
-          git push --follow-tags
+    - name: Create Tag
+      run: |
+        git tag -a v1.0.0 -m "Release v1.0.0"
+        git push --follow-tags
