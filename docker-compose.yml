@@ -18,53 +18,49 @@ services:
     networks:
       - marketplace_net
     environment:
-      NAME: ""
+      NAME: "The Marketplace"
 
-  neo4j-master:
-    image: neo4j:latest
-    hostname: neo4j-master
-    container_name: neo4j-master
+  redis:
+    image: redis:latest
+    hostname: redis
+    container_name: redis
     restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    hostname: redis-commander
+    container_name: redis-commander
+    restart: unless-stopped
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+
+  neo4j:
+    image: neo4j:latest
+    hostname: neo4j
+    container_name: neo4j
+    restart: unless-stopped
+    environment:
+      - NEO4J_AUTH=none
     ports:
       - "7474:7474"
       - "7687:7687"
     volumes:
-      - ./neo4j-master/data:/data
-      - ./neo4j-master/logs:/logs
-    networks:
-      - marketplace_net
-    environment:
-      NEO4J_ACCEPT_LICENSE_AGREEMENT: yes
-      NEO4J_dbms_mode: CORE
-      NEO4J_causal__clustering_expected__core__cluster__size: 2
-      NEO4J_causal__clustering_initial__discovery__members: neo4j-master:5000,neo4j-worker:5000
-      NEO4J_causal__clustering_discovery__advertised__address: neo4j-master:5000
-      NEO4J_causal__clustering_transaction__advertised__address: neo4j-master:5000
-      NEO4J_dbms_connectors_default__advertised__address: neo4j-master:7474
-
-  neo4j-worker:
-    image: neo4j:latest
-    hostname: neo4j-worker
-    container_name: neo4j-worker
-    restart: unless-stopped
-    volumes:
-      - ./neo4j-worker/data:/data
-      - ./neo4j-worker/logs:/logs
-    networks:
-      - marketplace_net
-    environment:
-      NEO4J_ACCEPT_LICENSE_AGREEMENT: yes
-      NEO4J_dbms_mode: CORE
-      NEO4J_causal__clustering_expected__core__cluster__size: 2
-      NEO4J_causal__clustering_initial__discovery__members: neo4j-master:5000,neo4j-worker:5000
-      NEO4J_causal__clustering_discovery__advertised__address: neo4j-worker:5000
-      NEO4J_causal__clustering_transaction__advertised__address: neo4j-worker:5000
-      NEO4J_dbms_connectors_default__advertised__address: neo4j-worker:7474
+      - neo4j_data:/data
 
 networks:
   marketplace_net:
     name: marketplace_net
 
 volumes:
+  redis_data:
+    name: redis_data
+  neo4j_data:
+    name: neo4j_data
   backend_data:
     name: backend_data
