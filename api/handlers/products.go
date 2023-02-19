@@ -4,76 +4,76 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"marketplace/internal/user"
+	"marketplace/internal/products"
 	"net/http"
 	"strconv"
 )
 
 var (
-	UserStore = user.NewMemoryUserStore()
+	productStore = products.NewMemoryProductStore()
 )
 
-func CreateUserHandler(w http.ResponseWriter, r *http.Request) {
-	var User user.User
-	err := json.NewDecoder(r.Body).Decode(&User)
+func CreateProductHandler(w http.ResponseWriter, r *http.Request) {
+	var product products.Product
+	err := json.NewDecoder(r.Body).Decode(&product)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	user,_:=UserStore.CreateUser(&User)
-
+	newp,_:=productStore.CreateProduct(&product)
+	
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(user)
+	json.NewEncoder(w).Encode(newp)
 }
 
-func GetUserHandler(w http.ResponseWriter, r *http.Request) {
+func GetProductHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.ParseUint(r.URL.Query().Get("id"), 10, 64)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	var User *user.User
-	User, err = UserStore.GetUser(id)
+	var product *products.Product
+	product, err = productStore.GetProduct(id)
 	if err != nil {
 		log.Printf("Error: %v", err)
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(err)
 	}
 
-	json.NewEncoder(w).Encode(User)
+	json.NewEncoder(w).Encode(product)
 }
 
-func UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
+func UpdateProductHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.ParseUint(r.URL.Query().Get("id"), 10, 64)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	var updatedUser *user.User
-	err = json.NewDecoder(r.Body).Decode(&updatedUser)
+	var updatedProduct *products.Product
+	err = json.NewDecoder(r.Body).Decode(&updatedProduct)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	updatedUser.ID = id
+	updatedProduct.ID = id
 
 	go func() {
-		UserStore.UpdateUser(updatedUser)
+		productStore.UpdateProduct(updatedProduct)
 	}()
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(fmt.Sprintf("User with %v id was updated.", updatedUser.ID))
+	json.NewEncoder(w).Encode(fmt.Sprintf("product with %v id was updated.", updatedProduct.ID))
 }
 
-func DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
+func DeleteProductHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.ParseUint(r.URL.Query().Get("id"), 10, 64)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = UserStore.DeleteUser(id)
+	err = productStore.DeleteProduct(id)
 	if err != nil {
 		log.Printf("Error: %v", err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -82,15 +82,15 @@ func DeleteUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(fmt.Sprintf("User with %v id was deleted.", id))
+	json.NewEncoder(w).Encode(fmt.Sprintf("product with %v id was deleted.", id))
 }
 
-func GetAllUsersHandler(w http.ResponseWriter, r *http.Request) {
+func GetAllProductsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	Users, err := UserStore.GetAllUsers()
+	products, err := productStore.GetAllProducts()
 	if err != nil {
 		log.Printf("Error: %v", err)
 	}
-	json.NewEncoder(w).Encode(Users)
+	json.NewEncoder(w).Encode(products)
 }

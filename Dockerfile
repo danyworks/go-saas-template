@@ -16,4 +16,4 @@ RUN go build -o ./bin/marketplace ./cmd/backend/main.go
 
 EXPOSE 8080
 
-ENTRYPOINT [ "/data/bin/marketplace","8080" ]
+CMD [ "/data/bin/marketplace","8080" ]

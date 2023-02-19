@@ -1,4 +1,4 @@
-package logic
+package common
 
 import (
 	"fmt"
@@ -24,4 +24,15 @@ func NewBaseObject() *BaseObject {
 
 	base.Hash = utils.GenerateSHA256Hash(fmt.Sprintf("%v", base))
 	return base
+}
+
+func (base *BaseObject) BaseObjectUpdated() {
+	base.UpdatedAt = time.Now()
+	base.Hash = utils.GenerateSHA256Hash(fmt.Sprintf("%v", base))
+	
+}
+
+func (base *BaseObject) BaseObjectDeleted() {
+	base.DeletedAt = time.Now()
+	base.Hash = utils.GenerateSHA256Hash(fmt.Sprintf("%v", base))
 }

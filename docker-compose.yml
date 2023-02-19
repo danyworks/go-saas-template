@@ -1,0 +1,70 @@
+version: '3.7'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    hostname: marketplace-backend
+    container_name: marketplace-backend
+    restart: unless-stopped
+    privileged: true
+    volumes:
+      - backend_data:/data:rw
+    ports: 
+      - "8080:8080"
+    expose:
+      - "8080"
+    networks:
+      - marketplace_net
+    environment:
+      NAME: ""
+
+  neo4j-master:
+    image: neo4j:latest
+    hostname: neo4j-master
+    container_name: neo4j-master
+    restart: unless-stopped
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - ./neo4j-master/data:/data
+      - ./neo4j-master/logs:/logs
+    networks:
+      - marketplace_net
+    environment:
+      NEO4J_ACCEPT_LICENSE_AGREEMENT: yes
+      NEO4J_dbms_mode: CORE
+      NEO4J_causal__clustering_expected__core__cluster__size: 2
+      NEO4J_causal__clustering_initial__discovery__members: neo4j-master:5000,neo4j-worker:5000
+      NEO4J_causal__clustering_discovery__advertised__address: neo4j-master:5000
+      NEO4J_causal__clustering_transaction__advertised__address: neo4j-master:5000
+      NEO4J_dbms_connectors_default__advertised__address: neo4j-master:7474
+
+  neo4j-worker:
+    image: neo4j:latest
+    hostname: neo4j-worker
+    container_name: neo4j-worker
+    restart: unless-stopped
+    volumes:
+      - ./neo4j-worker/data:/data
+      - ./neo4j-worker/logs:/logs
+    networks:
+      - marketplace_net
+    environment:
+      NEO4J_ACCEPT_LICENSE_AGREEMENT: yes
+      NEO4J_dbms_mode: CORE
+      NEO4J_causal__clustering_expected__core__cluster__size: 2
+      NEO4J_causal__clustering_initial__discovery__members: neo4j-master:5000,neo4j-worker:5000
+      NEO4J_causal__clustering_discovery__advertised__address: neo4j-worker:5000
+      NEO4J_causal__clustering_transaction__advertised__address: neo4j-worker:5000
+      NEO4J_dbms_connectors_default__advertised__address: neo4j-worker:7474
+
+networks:
+  marketplace_net:
+    name: marketplace_net
+
+volumes:
+  backend_data:
+    name: backend_data

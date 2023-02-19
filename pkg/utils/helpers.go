@@ -25,6 +25,7 @@ func CompareSHA256Hashes(hash1 string, hash2 string) bool {
 	}
 	return true
 }
+
 func GenerateUint64ID() uint64 {
 	bytes := make([]byte, 8)
 	if _, err := rand.Read(bytes); err != nil {

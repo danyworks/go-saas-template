@@ -1,4 +1,4 @@
-package logic
+package common
 
 type FilterBy struct {
 	Field string
