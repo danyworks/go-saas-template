@@ -29,6 +29,8 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    expose:
+      - "6379"
 
   redis-commander:
     image: rediscommander/redis-commander:latest
@@ -39,6 +41,8 @@ services:
       - REDIS_HOSTS=local:redis:6379
     ports:
       - "8081:8081"
+    expose:
+      - "8081"
 
   neo4j:
     image: neo4j:latest
@@ -50,6 +54,9 @@ services:
     ports:
       - "7474:7474"
       - "7687:7687"
+    expose:
+      - "7474"
+      - "7687"
     volumes:
       - neo4j_data:/data
 
