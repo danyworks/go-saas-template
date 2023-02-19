@@ -60,6 +60,24 @@ services:
     volumes:
       - neo4j_data:/data
 
+  nginx:
+    image: nginx:latest
+    hostname: nginx
+    container_name: nginx
+    restart: unless-stopped
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/cert:/etc/nginx/cert:ro # Replace with actual path to SSL certificate and key
+    ports:
+      - "80:80"
+      - "443:443"
+    expose:
+      - "80"
+      - "443"
+    networks:
+      - marketplace_net
+
+
 networks:
   marketplace_net:
     name: marketplace_net
