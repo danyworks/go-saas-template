@@ -38,3 +38,14 @@ jobs:
           tags: ${{ env.DOCKER_HUB_USERNAME }}/${{ env.APP_NAME }}:${{ env.TAG }}
           build-args: |
             PORT=8080
+            - name: Publish to GitHub Packages
+          
+      - name: Push Docker image to GitHub Packages  
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: docker.pkg.github.com/${{ github.repository }}/myapp:${{ github.ref }}
+          registry: docker.pkg.github.com
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
